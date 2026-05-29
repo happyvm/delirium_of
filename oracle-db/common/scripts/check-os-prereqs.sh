@@ -106,7 +106,8 @@ oracle_preinstall_pkg() {
     18c)               echo "oracle-database-preinstall-18c" ;;
     19c)               echo "oracle-database-preinstall-19c" ;;
     21c)               echo "oracle-database-preinstall-21c" ;;
-    23ai|26ai)         echo "oracle-database-preinstall-23ai" ;;
+    23ai)              echo "oracle-database-preinstall-23ai" ;;
+    26ai)              echo "oracle-ai-database-preinstall-26ai" ;;
     *)                 echo "" ;;
   esac
 }

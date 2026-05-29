@@ -26,7 +26,7 @@ publish and legally clean.
    blocks merges that violate this.
 
 See [docs/security-and-licensing.md](docs/security-and-licensing.md) for the
-full rationale and the licensing boundaries (MIT covers this repo only;
+full rationale and the licensing boundaries (GPL-3.0 covers this repo only;
 Oracle/Red Hat software is governed by their agreements).
 
 ## Bash conventions
