@@ -53,7 +53,8 @@ record() {
     WARN) N_WARN=$((N_WARN+1)); log_warn  "WARN  $2" ;;
     FAIL) N_FAIL=$((N_FAIL+1)); log_error "FAIL  $2" ;;
   esac
-  [ -n "$REPORT" ] && printf "%-4s %s\n" "$1" "$2" >>"$REPORT"
+  if [ -n "$REPORT" ]; then printf "%-4s %s\n" "$1" "$2" >>"$REPORT"; fi
+  return 0   # never let an unset REPORT make record fail under set -e
 }
 
 check_user() {

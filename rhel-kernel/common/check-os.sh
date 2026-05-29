@@ -70,12 +70,20 @@ main() {
     printf "Distro ID:     %s\n" "$OS_ID"
     printf "Version:       %s (major: %s)\n" "$OS_VERSION_FULL" "$OS_VERSION_MAJOR"
     printf "Kernel:        %s\n" "$OS_KERNEL"
+    printf "Kernel type:   %s\n" "${OS_KERNEL_TYPE:-rhck}"
     printf "Architecture:  %s\n" "$OS_ARCH"
     printf "Package mgr:   %s\n" "$OS_PKG_MGR"
   fi
 
   if is_rhel_compatible; then
-    log_ok "Operating system is RHEL or a compatible clone."
+    if is_oracle_linux; then
+      log_ok "Operating system is Oracle Linux (RHEL-compatible)."
+      if is_uek; then log_info "Booted kernel is UEK (Unbreakable Enterprise Kernel)."; fi
+    elif is_centos; then
+      log_ok "Operating system is CentOS / CentOS Stream (RHEL-compatible)."
+    else
+      log_ok "Operating system is RHEL or a compatible clone."
+    fi
     return 0
   fi
 
