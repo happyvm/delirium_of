@@ -1,0 +1,73 @@
+name: CI
+
+# Runs on every push and pull request. The "shell" job enforces the same
+# quality gates documented in the Makefile (syntax, shellcheck, tests); the
+# "secrets" job blocks merges that would introduce credentials.
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  shell:
+    name: Shell quality (syntax / shellcheck / tests)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck and Bats
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck bats
+
+      - name: Versions
+        run: |
+          bash --version | head -1
+          shellcheck --version | sed -n '1,3p'
+          bats --version || true
+
+      - name: make syntax
+        run: make syntax
+
+      - name: make shellcheck
+        # STRICT=1 makes a missing shellcheck a hard failure (it is installed
+        # above, so this also guards against the tool silently disappearing).
+        run: STRICT=1 make shellcheck
+
+      - name: make test
+        run: make test
+
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        env:
+          GITLEAKS_VERSION: 8.18.4
+        run: |
+          set -euo pipefail
+          curl -sSfL \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            -o /tmp/gitleaks.tgz
+          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
+          sudo install /tmp/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Scan working tree and history
+        run: |
+          # Fails (exit non-zero) if any secret is found, blocking the merge.
+          gitleaks detect \
+            --source . \
+            --config .gitleaks.toml \
+            --redact \
+            --no-banner \
+            --verbose

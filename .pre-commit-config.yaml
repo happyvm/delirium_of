@@ -1,0 +1,26 @@
+# Local pre-commit hooks mirroring the CI gates.
+#   pip install pre-commit && pre-commit install
+#   pre-commit run --all-files
+#
+# These catch shell issues and secrets before they ever reach a PR.
+repos:
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.10.0
+    hooks:
+      - id: shellcheck
+        args: ["-x"]
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      # Defence in depth: refuse to commit large/binary blobs by accident.
+      - id: check-added-large-files
+        args: ["--maxkb=512"]

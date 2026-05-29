@@ -52,7 +52,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --out-dir) OUT_DIR="${2:?--out-dir needs a value}"; shift ;;
       *) log_warn "Ignoring unknown argument: $1" ;;
     esac

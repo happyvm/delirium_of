@@ -3,9 +3,11 @@
 #
 # Targets:
 #   make help        Show this help.
+#   make ci          Run the full local gate (syntax + shellcheck + test + secrets).
 #   make lint        Alias for shellcheck.
 #   make shellcheck  Run ShellCheck over all shell scripts.
 #   make test        Run the Bats test suite (if bats is installed).
+#   make secrets     Run gitleaks secret scan (if gitleaks is installed).
 #   make syntax      bash -n syntax check over all scripts (no external deps).
 #   make docs        List / sanity-check the documentation set.
 #   make tree        Print the repository tree (excluding .git and artefacts).
@@ -14,10 +16,13 @@
 SHELL := /bin/bash
 SCRIPTS := $(shell find . -path ./.git -prune -o -type f -name '*.sh' -print)
 
-.PHONY: help lint shellcheck test syntax docs tree perms
+.PHONY: help ci lint shellcheck test secrets syntax docs tree perms
 
 help:
 	@grep -E '^#   make ' Makefile | sed 's/^#   /  /'
+
+ci: syntax shellcheck test secrets
+	@echo "Local CI gate complete."
 
 lint: shellcheck
 
@@ -36,6 +41,14 @@ test:
 		bats scripts/tests/bats/; \
 	else \
 		echo "WARN: bats not installed; skipping tests."; \
+	fi
+
+secrets:
+	@if command -v gitleaks >/dev/null 2>&1; then \
+		gitleaks detect --source . --config .gitleaks.toml --redact --no-banner --verbose; \
+	else \
+		echo "WARN: gitleaks not installed; skipping secret scan."; \
+		echo "      Install: https://github.com/gitleaks/gitleaks/releases"; \
 	fi
 
 docs:

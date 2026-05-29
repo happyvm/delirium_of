@@ -104,7 +104,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --install-prereqs) INSTALL_PREREQS=1 ;;
       --dry-run) DRY_RUN=1 ;;
       *) log_warn "Ignoring unknown argument: $1" ;;
@@ -184,7 +184,7 @@ main() {
     pkg_install $pkgs || log_error "Package installation reported errors."
   elif [ -n "$pkgs" ]; then
     log_info "Suggested install command:"
-    log_info "  sudo $(detect_pkg_manager) install -y$( echo " $pkgs")"
+    log_info "  sudo $(detect_pkg_manager) install -y $pkgs"
   fi
 
   # --- summary -------------------------------------------------------------

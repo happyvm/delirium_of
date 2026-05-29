@@ -65,7 +65,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --env) ENV_FILE="${2:?}"; shift ;;
       --oracle-home) ORACLE_HOME="${2:?}"; export ORACLE_HOME; shift ;;
       --report) REPORT="${2:?}"; shift ;;

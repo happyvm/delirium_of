@@ -64,7 +64,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --dry-run) DRY_RUN=1 ;;
       --oracle-version) ORACLE_VERSION="${2:?}"; shift ;;
       --out) OUT="${2:?}"; shift ;;
@@ -112,7 +112,7 @@ main() {
 
   require_root
   if [ -f "$OUT" ]; then
-    local bak="${OUT}.bak.$(timestamp_compact)"
+    local bak; bak="${OUT}.bak.$(timestamp_compact)"
     cp -p "$OUT" "$bak"
     log_info "Backed up existing $OUT -> $bak"
   fi

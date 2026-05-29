@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# shellcheck_all.sh - Run ShellCheck over every shell script in the repo.
+# Run ShellCheck over every shell script in the repo (scripts/tests runner).
 #
 # Legacy scripts that intentionally target old Bash (RHEL 4/5/6) may carry
 # documented inline `# shellcheck disable=...` directives. This runner does

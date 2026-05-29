@@ -14,7 +14,7 @@
 # that rely on modern features are documented as such.
 
 if [ -n "${__COMMON_SH_LOADED:-}" ]; then
-  return 0 2>/dev/null || true
+  return 0
 fi
 __COMMON_SH_LOADED=1
 
@@ -49,7 +49,7 @@ common_parse_flags() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       --dry-run) DRY_RUN=1 ;;
-      --verbose|-v) VERBOSE=1 ;;
+      --verbose|-v) VERBOSE=1; export VERBOSE ;;
       --yes|-y) ASSUME_YES=1 ;;
       *) COMMON_REST[${#COMMON_REST[@]}]="$1" ;;
     esac

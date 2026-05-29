@@ -66,7 +66,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --base) BASE="${2:?--base needs a value}"; shift ;;
       --new) NEW="${2:?--new needs a value}"; shift ;;
       --out-dir) OUT_DIR="${2:?--out-dir needs a value}"; shift ;;
@@ -75,7 +75,7 @@ main() {
     shift
   done
 
-  [ -n "$BASE" ] && [ -n "$NEW" ] || { usage; die "Both --base and --new are required."; }
+  if [ -z "$BASE" ] || [ -z "$NEW" ]; then usage; die "Both --base and --new are required."; fi
   require_file "$BASE"
   require_file "$NEW"
   mkdir -p "$OUT_DIR"

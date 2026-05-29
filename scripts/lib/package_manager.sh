@@ -13,7 +13,7 @@
 # The install functions honour DRY_RUN=1 (commands are printed, not run).
 
 if [ -n "${__PKG_MGR_SH_LOADED:-}" ]; then
-  return 0 2>/dev/null || true
+  return 0
 fi
 __PKG_MGR_SH_LOADED=1
 

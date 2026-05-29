@@ -1,0 +1,35 @@
+# gitleaks configuration for this repository.
+#
+# We extend gitleaks' built-in rule set (which detects real credentials such
+# as cloud keys, private keys and tokens) and add a small allowlist tuned to
+# this repo's intentionally non-secret placeholders and templates.
+#
+# Used by: .github/workflows/ci.yml and `make secrets`.
+
+title = "RHEL/Oracle automation repo - gitleaks config"
+
+# Inherit all of gitleaks' default rules.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Repo-specific false-positive suppressions (no real secrets here)"
+
+# These paths only ever contain placeholders, examples and documentation.
+paths = [
+  '''.*\.template$''',
+  '''.*\.rsp\.template$''',
+  '''.*\.env\.template$''',
+  '''(^|/)docs/.*\.md$''',
+  '''(^|/)README\.md$''',
+  '''(^|/)CONTRIBUTING\.md$''',
+]
+
+# Known non-secret tokens used throughout the templates/docs.
+regexes = [
+  '''\{\{[A-Z0-9_]+\}\}''',          # {{ORACLE_HOME}} style placeholders
+  '''sysPassword=\s*$''',            # deliberately empty password fields
+  '''systemPassword=\s*$''',
+  '''(SYS|SYSTEM)_PASSWORD="\.\.\."''',  # doc example, literal dots
+  '''change[-_ ]?me''',              # obvious placeholder values
+]

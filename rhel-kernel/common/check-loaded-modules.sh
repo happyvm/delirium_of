@@ -61,18 +61,23 @@ EOF
 }
 
 # classify <module-name> - echo a category for the module name.
+# Order matters: the FIRST matching pattern wins, so the more specific
+# categories (multipath, network) are tested before the broader ones
+# (storage, virtualisation). Patterns are kept non-overlapping.
 classify() {
   local m="$1"
   case "$m" in
-    kvm*|xen*|virtio*|vmw_*|vmware*|hv_*|hyperv*|qemu*|xenfs|xen_*)
-      echo "virtualisation" ;;
-    sd_mod|sg|scsi_*|ahci|libata|nvme*|megaraid*|mpt*|qla*|lpfc|bnx2*|hpsa|smartpqi|dm_mod|dm_snapshot)
-      echo "storage" ;;
+    # Multipath before storage so scsi_dh_* is not swallowed by scsi_*.
     dm_multipath|scsi_dh_*|multipath*)
       echo "multipath" ;;
+    # virtio_net is a paravirtual NIC: classify as network, before virtio*.
     e1000*|ixgbe|igb|bnx*|tg3|mlx*|i40e|ice|virtio_net|bonding|8021q|vxlan|veth|bridge|nf_*|ip_tables|iptable_*)
       echo "network" ;;
-    ext4|ext3|ext2|xfs|btrfs|nfs*|nfsd|cifs|vfat|fat|overlay|fuse|jbd2|gfs2|ocfs2)
+    kvm*|xen*|virtio*|vmw_*|vmware*|hv_*|hyperv*|qemu*)
+      echo "virtualisation" ;;
+    sd_mod|sg|scsi_*|ahci|libata|nvme*|megaraid*|mpt*|qla*|lpfc|hpsa|smartpqi|dm_mod|dm_snapshot)
+      echo "storage" ;;
+    ext4|ext3|ext2|xfs|btrfs|nfs*|cifs|vfat|fat|overlay|fuse|jbd2|gfs2|ocfs2)
       echo "filesystem" ;;
     selinux|capability|apparmor|integrity|ima|evm|tpm*|aesni*|crypto*)
       echo "security" ;;
@@ -98,7 +103,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --out-dir) OUT_DIR="${2:?--out-dir needs a value}"; shift ;;
       --baseline) BASELINE="${2:?--baseline needs a value}"; shift ;;
       *) log_warn "Ignoring unknown argument: $1" ;;

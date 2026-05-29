@@ -56,7 +56,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --archive) ARCHIVE="${2:?}"; shift ;;
       --manifest) MANIFEST="${2:?}"; shift ;;
       *) log_warn "Ignoring unknown argument: $1" ;;

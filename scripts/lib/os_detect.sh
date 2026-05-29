@@ -22,7 +22,7 @@
 #   detect_pkg_manager   - echo the preferred package manager name
 
 if [ -n "${__OS_DETECT_SH_LOADED:-}" ]; then
-  return 0 2>/dev/null || true
+  return 0
 fi
 __OS_DETECT_SH_LOADED=1
 
@@ -116,9 +116,13 @@ detect_os() {
   # Oracle Linux can run either the Unbreakable Enterprise Kernel (UEK) or the
   # Red Hat Compatible Kernel (RHCK). Record which is booted.
   case "$OS_KERNEL" in
-    *uek*|*.uek*) OS_KERNEL_TYPE="uek" ;;
-    *)            OS_KERNEL_TYPE="rhck" ;;
+    *uek*) OS_KERNEL_TYPE="uek" ;;
+    *)     OS_KERNEL_TYPE="rhck" ;;
   esac
+
+  # Export the detected values so callers and child processes can read them.
+  export OS_ID OS_NAME OS_VERSION_FULL OS_VERSION_MAJOR \
+         OS_KERNEL OS_ARCH OS_PKG_MGR OS_KERNEL_TYPE
 
   # Best-effort debug output if logging.sh is loaded.
   if command -v log_debug >/dev/null 2>&1; then

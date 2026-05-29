@@ -22,7 +22,7 @@
 
 # Guard against double sourcing.
 if [ -n "${__LOGGING_SH_LOADED:-}" ]; then
-  return 0 2>/dev/null || true
+  return 0
 fi
 __LOGGING_SH_LOADED=1
 

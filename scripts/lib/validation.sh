@@ -15,7 +15,7 @@
 #   confirm <prompt>          - interactive yes/no (auto-yes when ASSUME_YES=1)
 
 if [ -n "${__VALIDATION_SH_LOADED:-}" ]; then
-  return 0 2>/dev/null || true
+  return 0
 fi
 __VALIDATION_SH_LOADED=1
 

@@ -101,7 +101,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --env) ENV_FILE="${2:?}"; shift ;;
       --report) REPORT="${2:?}"; shift ;;
       *) log_warn "Ignoring unknown argument: $1" ;;
@@ -121,12 +121,16 @@ main() {
   local nofile nproc
   nofile=$(ulimit -n 2>/dev/null || echo 0)
   nproc=$(ulimit -u 2>/dev/null || echo 0)
-  [ "$nofile" = "unlimited" ] || [ "$nofile" -ge 65536 ] 2>/dev/null \
-    && record PASS "ulimit nofile=$nofile" \
-    || record WARN "ulimit nofile=$nofile (Oracle recommends >= 65536)"
-  [ "$nproc" = "unlimited" ] || [ "$nproc" -ge 16384 ] 2>/dev/null \
-    && record PASS "ulimit nproc=$nproc" \
-    || record WARN "ulimit nproc=$nproc (Oracle recommends >= 16384)"
+  if [ "$nofile" = "unlimited" ] || { [ "$nofile" -ge 65536 ]; } 2>/dev/null; then
+    record PASS "ulimit nofile=$nofile"
+  else
+    record WARN "ulimit nofile=$nofile (Oracle recommends >= 65536)"
+  fi
+  if [ "$nproc" = "unlimited" ] || { [ "$nproc" -ge 16384 ]; } 2>/dev/null; then
+    record PASS "ulimit nproc=$nproc"
+  else
+    record WARN "ulimit nproc=$nproc (Oracle recommends >= 16384)"
+  fi
 
   # Kernel parameters (representative subset).
   check_sysctl fs.file-max 6815744
@@ -138,9 +142,11 @@ main() {
   base="${ORACLE_BASE:-/u01/app/oracle}"
   if [ -d "$base" ]; then
     avail=$(df -Pm "$base" 2>/dev/null | awk 'NR==2{print $4}')
-    [ "${avail:-0}" -ge 10240 ] 2>/dev/null \
-      && record PASS "ORACLE_BASE space ${avail}MB" \
-      || record WARN "ORACLE_BASE space ${avail:-0}MB (< 10GB)"
+    if { [ "${avail:-0}" -ge 10240 ]; } 2>/dev/null; then
+      record PASS "ORACLE_BASE space ${avail}MB"
+    else
+      record WARN "ORACLE_BASE space ${avail:-0}MB (< 10GB)"
+    fi
   else
     record WARN "ORACLE_BASE directory missing: $base"
   fi
