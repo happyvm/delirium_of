@@ -32,8 +32,8 @@ on-premise concerns:
   Linux, CentOS/Stream, Rocky, AlmaLinux, Scientific) and Oracle 9i → 26ai
   (9i, 10gR1/R2, 11gR1/R2, 12cR1/R2, 18c, 19c, 21c, 23ai, 26ai).
 - Response-file and RPM spec **templates** with `{{PLACEHOLDER}}` substitution.
-- A compatibility matrix, an Oracle editions matrix, and security/licensing
-  guidance under `docs/`.
+- A RHEL compatibility matrix, Oracle OS compatibility matrix, Oracle
+  editions matrix, and security/licensing guidance under `docs/`.
 - A `Makefile` and a `scripts/tests/` harness (ShellCheck + Bats).
 
 ## What is intentionally excluded
@@ -48,8 +48,8 @@ See [`docs/security-and-licensing.md`](docs/security-and-licensing.md).
 
 ## Licensing constraints (read first)
 
-- The **MIT license** in [`LICENSE`](LICENSE) covers *this repository's*
-  scripts and docs only.
+- The **GNU General Public License v3.0** in [`LICENSE`](LICENSE) covers
+  *this repository's* scripts, templates and docs only.
 - **Oracle Database** software is proprietary; use is governed by your Oracle
   license. Golden images and RPMs you build from your installation must stay
   within those terms.
@@ -154,7 +154,7 @@ credentials. Mirror it locally with `make ci` or
 |----------|---------|
 | [docs/architecture.md](docs/architecture.md) | High-level design |
 | [docs/conventions.md](docs/conventions.md) | Bash & repo conventions |
-| [docs/compatibility-matrix.md](docs/compatibility-matrix.md) | RHEL 4–10 matrix |
+| [docs/compatibility-matrix.md](docs/compatibility-matrix.md) | RHEL 4–10 and Oracle DB / OS compatibility matrices |
 | [docs/oracle-editions-matrix.md](docs/oracle-editions-matrix.md) | Oracle version × edition |
 | [docs/rhel-kernel-workflow.md](docs/rhel-kernel-workflow.md) | Kernel workflow |
 | [docs/oracle-install-workflow.md](docs/oracle-install-workflow.md) | Oracle install workflow |
