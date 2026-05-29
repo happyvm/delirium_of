@@ -13,6 +13,13 @@ on-premise concerns:
 > It contains **no** Oracle binaries, **no** installation media, **no**
 > Red Hat proprietary content, and **no** secrets. You supply those yourself.
 
+> ⚠️ **Coverage ≠ testing.** A directory for a RHEL major or an Oracle
+> version/edition means *scaffolding exists*, not that it was installed and
+> validated. See **[docs/support-status.md](docs/support-status.md)** for the
+> honest "validated / scaffold-only" breakdown, and
+> **[docs/safe-usage.md](docs/safe-usage.md)** for dry-run-first command
+> recipes. Contributions: **[CONTRIBUTING.md](CONTRIBUTING.md)**.
+
 ---
 
 ## What is included
@@ -21,7 +28,9 @@ on-premise concerns:
 - Diagnostic and preparation scripts for RHEL kernels (`rhel-kernel/common/`).
 - A full Oracle install / lifecycle / golden-image / RPM toolchain
   (`oracle-db/common/`).
-- Per-version scaffolding for RHEL 4–10 and Oracle 9i → 26ai.
+- Per-version scaffolding for RHEL 4–10 (and RHEL-compatible distros: Oracle
+  Linux, CentOS/Stream, Rocky, AlmaLinux, Scientific) and Oracle 9i → 26ai
+  (9i, 10gR1/R2, 11gR1/R2, 12cR1/R2, 18c, 19c, 21c, 23ai, 26ai).
 - Response-file and RPM spec **templates** with `{{PLACEHOLDER}}` substitution.
 - A compatibility matrix, an Oracle editions matrix, and security/licensing
   guidance under `docs/`.
@@ -96,16 +105,23 @@ cp oracle-db/common/env/oracle.env.template oracle.env
 $EDITOR oracle.env && source oracle.env
 
 # 1. Verify OS + Oracle prerequisites.
-./oracle-db/common/scripts/check-os-prereqs.sh --oracle-version 12c
+./oracle-db/common/scripts/check-os-prereqs.sh --oracle-version 12cR1
 ./oracle-db/common/scripts/check-oracle-prereqs.sh --env oracle.env
 
 # 2. Create user, kernel params and limits (dry-run first!).
 sudo ./oracle-db/common/scripts/create-oracle-user.sh --dry-run
-sudo ./oracle-db/common/scripts/configure-kernel-params.sh --oracle-version 12c --dry-run
+sudo ./oracle-db/common/scripts/configure-kernel-params.sh --oracle-version 12cR1 --dry-run
 sudo ./oracle-db/common/scripts/configure-limits.sh --dry-run
 
 # 3. Install silently using YOUR media + a rendered response file.
-./oracle-db/12c/enterprise/install/install-silent.sh \
+#    Safe order: validate-only -> dry-run -> real (see docs/safe-usage.md).
+./oracle-db/12cR1/enterprise/install/install-silent.sh \
+    --installer /path/to/runInstaller --oracle-home "$ORACLE_HOME" \
+    --response /path/to/db_install.rsp --validate-only
+./oracle-db/12cR1/enterprise/install/install-silent.sh \
+    --installer /path/to/runInstaller --oracle-home "$ORACLE_HOME" \
+    --response /path/to/db_install.rsp --software-only --dry-run
+./oracle-db/12cR1/enterprise/install/install-silent.sh \
     --installer /path/to/runInstaller --oracle-home "$ORACLE_HOME" \
     --response /path/to/db_install.rsp --software-only
 
@@ -119,11 +135,18 @@ sudo ./oracle-db/common/scripts/configure-limits.sh --dry-run
 ## Quality
 
 ```bash
+make ci          # full local gate: syntax + shellcheck + test + secrets
 make syntax      # bash -n over every script (no external dependency)
 make shellcheck  # ShellCheck (skipped gracefully if not installed)
 make test        # Bats tests (skipped gracefully if not installed)
+make secrets     # gitleaks secret scan (skipped gracefully if not installed)
 make tree        # show the repository tree
 ```
+
+CI (`.github/workflows/ci.yml`) runs the shell gates and a **gitleaks** secret
+scan on every push and pull request, blocking merges that introduce
+credentials. Mirror it locally with `make ci` or
+[pre-commit](https://pre-commit.com) (`.pre-commit-config.yaml`).
 
 ## Further reading
 
@@ -137,3 +160,6 @@ make tree        # show the repository tree
 | [docs/oracle-install-workflow.md](docs/oracle-install-workflow.md) | Oracle install workflow |
 | [docs/rpm-packaging.md](docs/rpm-packaging.md) | RPM packaging guide |
 | [docs/security-and-licensing.md](docs/security-and-licensing.md) | Security & licensing |
+| [docs/safe-usage.md](docs/safe-usage.md) | Dry-run-first command recipes |
+| [docs/support-status.md](docs/support-status.md) | Validated vs scaffold-only matrix |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution rules & gates |

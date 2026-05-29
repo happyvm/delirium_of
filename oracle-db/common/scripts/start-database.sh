@@ -57,7 +57,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --dry-run) DRY_RUN=1 ;;
       --env) ENV_FILE="${2:?}"; shift ;;
       --sid) ORACLE_SID="${2:?}"; export ORACLE_SID; shift ;;

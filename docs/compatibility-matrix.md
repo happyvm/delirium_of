@@ -14,6 +14,45 @@ Verify specifics against Red Hat documentation for your exact minor release.
 | 9  | `dnf` | — | `/etc/os-release` | python3 | 5.14 kernel; BTF + objtool; `elfutils-libelf-devel` | unified cgroup v2 default |
 | 10 | `dnf` | — | `/etc/os-release` | python3 | 6.x kernel; BTF/pahole; modern binutils | newest; verify package names |
 
+## RHEL-compatible distributions
+
+The scripts treat the following as RHEL-compatible (`is_rhel_compatible`),
+keyed to the matching RHEL major version above:
+
+| Distro | `OS_ID` | Detection specifics | Notes |
+|--------|---------|---------------------|-------|
+| Red Hat Enterprise Linux | `rhel` | `/etc/os-release` + `/etc/redhat-release` | reference platform |
+| **Oracle Linux** | `ol` | `/etc/oracle-release` (preferred) + `/etc/redhat-release` | RHEL-compatible; ships **two kernels** — see UEK note below |
+| **CentOS / CentOS Stream** | `centos` | `/etc/centos-release` and/or `/etc/os-release` | RHEL-compatible clone / upstream |
+| Rocky Linux | `rocky` | `/etc/os-release` | RHEL clone (8+) |
+| AlmaLinux | `alma` | `/etc/os-release` | RHEL clone (8+) |
+| Scientific Linux | `scientific` | `/etc/redhat-release` | legacy RHEL clone (6/7) |
+| Fedora | `fedora` | `/etc/os-release` | upstream; best-effort |
+
+### Oracle Linux UEK vs RHCK
+
+Oracle Linux can boot either the **Red Hat Compatible Kernel (RHCK)** or the
+**Unbreakable Enterprise Kernel (UEK)**. `detect_os` records which via
+`OS_KERNEL_TYPE` (`rhck`/`uek`); `is_uek` reports it. This matters because:
+
+- the **kernel config baseline differs** between RHCK and UEK — extract from
+  whichever kernel is actually booted and label it accordingly;
+- Oracle supports UEK for Oracle Database; `check-os-prereqs.sh` notes when a
+  UEK is detected.
+
+Oracle Linux also distinguishes itself from plain RHEL via
+`/etc/oracle-release`, which `detect_os` reads **with precedence** so OL is
+never misreported as RHEL (its `/etc/redhat-release` mimics RHEL).
+
+### Oracle Linux preinstall RPMs
+
+On Oracle Linux, Oracle ships `oracle-database-preinstall-<rel>` (and the
+older `oracle-rdbms-server-11gR2-preinstall`) packages that create the
+`oracle` user/groups and apply sysctl/limits automatically.
+`check-os-prereqs.sh --oracle-version <ver>` detects Oracle Linux and
+recommends the matching preinstall package instead of running the manual
+`create-oracle-user.sh` / `configure-*.sh` steps.
+
 ## Package-manager handling
 
 - `scripts/lib/os_detect.sh::detect_pkg_manager` returns the first available

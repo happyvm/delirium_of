@@ -17,7 +17,7 @@ reference a separate, git-ignored file via `ORACLE_PWFILE`.
 ## 1. Prerequisite checks
 
 ```bash
-./oracle-db/common/scripts/check-os-prereqs.sh --oracle-version 12c --report /tmp/os.txt
+./oracle-db/common/scripts/check-os-prereqs.sh --oracle-version 12cR1 --report /tmp/os.txt
 ./oracle-db/common/scripts/check-oracle-prereqs.sh --env oracle.env --report /tmp/ora.txt
 ```
 These check RAM/swap/space/arch/packages and the oracle user, groups,
@@ -30,8 +30,8 @@ ulimits, sysctl, hostname resolution, media/response-file presence and
 sudo ./oracle-db/common/scripts/create-oracle-user.sh --dry-run
 sudo ./oracle-db/common/scripts/create-oracle-user.sh
 
-sudo ./oracle-db/common/scripts/configure-kernel-params.sh --oracle-version 12c --dry-run
-sudo ./oracle-db/common/scripts/configure-kernel-params.sh --oracle-version 12c --apply
+sudo ./oracle-db/common/scripts/configure-kernel-params.sh --oracle-version 12cR1 --dry-run
+sudo ./oracle-db/common/scripts/configure-kernel-params.sh --oracle-version 12cR1 --apply
 
 sudo ./oracle-db/common/scripts/configure-limits.sh --dry-run
 sudo ./oracle-db/common/scripts/configure-limits.sh
@@ -46,7 +46,7 @@ then render with the helper:
 
 ```bash
 source scripts/lib/common.sh
-render_template oracle-db/12c/enterprise/install/db_install.rsp.template /tmp/db_install.rsp
+render_template oracle-db/12cR1/enterprise/install/db_install.rsp.template /tmp/db_install.rsp
 export ORACLE_RESPONSE_FILE=/tmp/db_install.rsp
 ```
 
@@ -54,12 +54,12 @@ export ORACLE_RESPONSE_FILE=/tmp/db_install.rsp
 
 ```bash
 # Validate only:
-./oracle-db/12c/enterprise/install/install-silent.sh \
+./oracle-db/12cR1/enterprise/install/install-silent.sh \
     --installer /media/oracle/runInstaller --oracle-home "$ORACLE_HOME" \
     --response "$ORACLE_RESPONSE_FILE" --validate-only
 
 # Software-only install:
-./oracle-db/12c/enterprise/install/install-silent.sh \
+./oracle-db/12cR1/enterprise/install/install-silent.sh \
     --installer /media/oracle/runInstaller --oracle-home "$ORACLE_HOME" \
     --response "$ORACLE_RESPONSE_FILE" --software-only
 ```
@@ -69,10 +69,10 @@ create a database, pass `--create-db` with `DBCA_RESPONSE_FILE` set.
 ## 5. Lifecycle
 
 ```bash
-./oracle-db/12c/enterprise/lifecycle/start-database.sh   --env oracle.env
-./oracle-db/12c/enterprise/lifecycle/status-database.sh  --env oracle.env
-./oracle-db/12c/enterprise/lifecycle/stop-database.sh    --env oracle.env --mode immediate
-./oracle-db/12c/enterprise/lifecycle/restart-database.sh --env oracle.env
+./oracle-db/12cR1/enterprise/lifecycle/start-database.sh   --env oracle.env
+./oracle-db/12cR1/enterprise/lifecycle/status-database.sh  --env oracle.env
+./oracle-db/12cR1/enterprise/lifecycle/stop-database.sh    --env oracle.env --mode immediate
+./oracle-db/12cR1/enterprise/lifecycle/restart-database.sh --env oracle.env
 ```
 
 ## 6. Validate
@@ -86,10 +86,10 @@ writes a Markdown report.
 ## 7. Golden image & RPM
 
 ```bash
-./oracle-db/12c/enterprise/golden-image/create-golden-image.sh \
+./oracle-db/12cR1/enterprise/golden-image/create-golden-image.sh \
     --oracle-home "$ORACLE_HOME" --edition EE
 
-./oracle-db/12c/enterprise/rpm/build-rpm.sh \
+./oracle-db/12cR1/enterprise/rpm/build-rpm.sh \
     --golden ./golden-image/output/oracle-home-EE-*.tar.gz \
     --version 12.2.0 --edition EE --oracle-home "$ORACLE_HOME"
 ```

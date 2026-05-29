@@ -22,7 +22,7 @@
 #   detect_pkg_manager   - echo the preferred package manager name
 
 if [ -n "${__OS_DETECT_SH_LOADED:-}" ]; then
-  return 0 2>/dev/null || true
+  return 0
 fi
 __OS_DETECT_SH_LOADED=1
 
@@ -58,13 +58,14 @@ detect_os() {
     OS_VERSION_FULL="${VERSION_ID:-unknown}"
   fi
 
-  # Legacy / authoritative path: /etc/redhat-release (RHEL 4/5/6 and all RHEL).
+  local rel ver
+
+  # Legacy / authoritative path: /etc/redhat-release (RHEL 4/5/6 and all RHEL,
+  # plus clones - Oracle Linux even ships a RHEL-mimicking redhat-release).
   if [ -r /etc/redhat-release ]; then
-    local rel
     rel=$(cat /etc/redhat-release)
     [ "$OS_NAME" = "unknown" ] && OS_NAME="$rel"
     # Extract the first version-looking token, e.g. "release 6.10".
-    local ver
     ver=$(echo "$rel" | grep -oE '[0-9]+(\.[0-9]+)+' | head -n1)
     [ -n "$ver" ] && OS_VERSION_FULL="$ver"
     # Map common distro names when os-release was absent.
@@ -75,10 +76,33 @@ detect_os() {
         *Rocky*)       OS_ID="rocky" ;;
         *AlmaLinux*)   OS_ID="alma" ;;
         *Oracle*)      OS_ID="ol" ;;
+        *Scientific*)  OS_ID="scientific" ;;
         *Fedora*)      OS_ID="fedora" ;;
       esac
     fi
   fi
+
+  # Oracle Linux ships /etc/oracle-release *in addition to* a RHEL-mimicking
+  # /etc/redhat-release. Prefer it so OL is never misreported as plain RHEL,
+  # including on legacy OL5/OL6 where /etc/os-release may be absent.
+  if [ -r /etc/oracle-release ]; then
+    OS_ID="ol"
+    OS_NAME=$(cat /etc/oracle-release)
+    ver=$(grep -oE '[0-9]+(\.[0-9]+)+' /etc/oracle-release | head -n1)
+    [ -n "$ver" ] && OS_VERSION_FULL="$ver"
+  # CentOS (incl. legacy CentOS 5/6 without /etc/os-release).
+  elif [ -r /etc/centos-release ]; then
+    OS_ID="centos"
+    [ "$OS_NAME" = "unknown" ] && OS_NAME=$(cat /etc/centos-release)
+    ver=$(grep -oE '[0-9]+(\.[0-9]+)+' /etc/centos-release | head -n1)
+    [ "$OS_VERSION_FULL" = "unknown" ] && [ -n "$ver" ] && OS_VERSION_FULL="$ver"
+  fi
+
+  # Normalise a few alternate IDs to canonical short forms.
+  case "$OS_ID" in
+    oracle)    OS_ID="ol" ;;
+    almalinux) OS_ID="alma" ;;
+  esac
 
   # Derive the major version.
   if [ "$OS_VERSION_FULL" != "unknown" ]; then
@@ -89,13 +113,25 @@ detect_os() {
   OS_ARCH=$(uname -m 2>/dev/null || echo "unknown")
   OS_PKG_MGR=$(detect_pkg_manager)
 
+  # Oracle Linux can run either the Unbreakable Enterprise Kernel (UEK) or the
+  # Red Hat Compatible Kernel (RHCK). Record which is booted.
+  case "$OS_KERNEL" in
+    *uek*) OS_KERNEL_TYPE="uek" ;;
+    *)     OS_KERNEL_TYPE="rhck" ;;
+  esac
+
+  # Export the detected values so callers and child processes can read them.
+  export OS_ID OS_NAME OS_VERSION_FULL OS_VERSION_MAJOR \
+         OS_KERNEL OS_ARCH OS_PKG_MGR OS_KERNEL_TYPE
+
   # Best-effort debug output if logging.sh is loaded.
   if command -v log_debug >/dev/null 2>&1; then
     log_debug "Detected OS_ID=$OS_ID version=$OS_VERSION_FULL kernel=$OS_KERNEL arch=$OS_ARCH pkg=$OS_PKG_MGR"
   fi
 }
 
-# is_rhel_compatible - return 0 when the detected distro is RHEL or a clone.
+# is_rhel_compatible - return 0 when the detected distro is RHEL or a clone:
+# Oracle Linux, CentOS / CentOS Stream, Rocky, AlmaLinux, Scientific, Fedora.
 # Call detect_os first.
 is_rhel_compatible() {
   case "${OS_ID:-unknown}" in
@@ -106,4 +142,20 @@ is_rhel_compatible() {
       return 1
       ;;
   esac
+}
+
+# is_oracle_linux - return 0 when the distro is Oracle Linux. Call detect_os first.
+is_oracle_linux() {
+  [ "${OS_ID:-}" = "ol" ]
+}
+
+# is_centos - return 0 when the distro is CentOS / CentOS Stream. Call detect_os first.
+is_centos() {
+  [ "${OS_ID:-}" = "centos" ]
+}
+
+# is_uek - return 0 when an Unbreakable Enterprise Kernel is booted (Oracle
+# Linux only). Call detect_os first.
+is_uek() {
+  [ "${OS_KERNEL_TYPE:-}" = "uek" ]
 }

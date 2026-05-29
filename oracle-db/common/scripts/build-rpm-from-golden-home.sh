@@ -63,7 +63,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --dry-run) DRY_RUN=1 ;;
       --golden) GOLDEN="${2:?}"; shift ;;
       --version) PKG_VERSION="${2:?}"; shift ;;

@@ -15,8 +15,11 @@ MARKER="/etc/oracle-home.stop-on-remove"
 if [ "${1:-0}" = "0" ] && [ -f "$MARKER" ]; then
   if [ -n "$ORACLE_SID" ] && [ -x "$ORACLE_HOME/bin/sqlplus" ]; then
     echo "preremove: attempting graceful shutdown of $ORACLE_SID..."
-    ORACLE_HOME="$ORACLE_HOME" ORACLE_SID="$ORACLE_SID" \
-      "$ORACLE_HOME/bin/sqlplus" -s "/ as sysdba" <<'SQL' || true
+    # ORACLE_HOME/ORACLE_SID are already in the environment here; export so
+    # the sqlplus child sees them (no inline prefix, which sqlplus path
+    # expansion would not observe anyway).
+    export ORACLE_HOME ORACLE_SID
+    "$ORACLE_HOME/bin/sqlplus" -s "/ as sysdba" <<'SQL' || true
 SHUTDOWN IMMEDIATE
 EXIT
 SQL

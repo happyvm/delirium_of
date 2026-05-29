@@ -1,0 +1,22 @@
+# Machine-readable applicability for Oracle Database 19c.
+# See ../../docs/oracle-editions-matrix.md (verify 18c/21c/23ai/26ai names).
+version: "19c"
+long_name: "Oracle Database 19c"
+editions:
+  enterprise:
+    code: EE
+    name: "Enterprise Edition"
+    applicable: yes
+  standard:
+    code: SE
+    name: "Standard Edition"
+    applicable: no
+  standard-one:
+    code: SE1
+    name: "Standard Edition One"
+    applicable: no
+  standard-2:
+    code: SE2
+    name: "Standard Edition 2"
+    applicable: yes
+verify_official_names_manually: false

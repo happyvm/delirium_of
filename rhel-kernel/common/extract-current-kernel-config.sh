@@ -63,7 +63,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --dest-dir) DEST_DIR="${2:?--dest-dir needs a value}"; shift ;;
       --rhel-major) RHEL_MAJOR="${2:?--rhel-major needs a value}"; shift ;;
       *) log_warn "Ignoring unknown argument: $1" ;;

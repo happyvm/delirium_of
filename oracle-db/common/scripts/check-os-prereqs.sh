@@ -61,17 +61,18 @@ record() {
     WARN) N_WARN=$((N_WARN+1)); log_warn  "WARN  $2" ;;
     FAIL) N_FAIL=$((N_FAIL+1)); log_error "FAIL  $2" ;;
   esac
-  [ -n "$REPORT" ] && printf "%-4s %s\n" "$1" "$2" >>"$REPORT"
+  if [ -n "$REPORT" ]; then printf "%-4s %s\n" "$1" "$2" >>"$REPORT"; fi
+  return 0   # never let an unset REPORT make record fail under set -e
 }
 
 # minimum_ram_mb <oracle-version> - echo a conservative minimum RAM in MB.
 minimum_ram_mb() {
   case "$1" in
-    9i|10gR1|10gR2) echo 1024 ;;
-    11gR1|11gR2)    echo 1024 ;;
-    12c|18c)        echo 2048 ;;
-    26ai)           echo 2048 ;;
-    *)              echo 1024 ;;
+    9i|10gR1|10gR2)             echo 1024 ;;
+    11gR1|11gR2)                echo 1024 ;;
+    12cR1|12cR2|12c|18c)        echo 2048 ;;
+    19c|21c|23ai|26ai)          echo 2048 ;;
+    *)                          echo 1024 ;;
   esac
 }
 
@@ -82,16 +83,31 @@ os_packages_for() {
     9i|10gR1|10gR2|11gR1|11gR2)
       echo "binutils gcc gcc-c++ glibc glibc-devel libaio libaio-devel make sysstat unzip libstdc++ libstdc++-devel compat-libstdc++-33 elfutils-libelf-devel"
       ;;
-    12c|18c)
+    12cR1|12cR2|12c|18c|19c)
       echo "binutils gcc gcc-c++ glibc glibc-devel libaio libaio-devel make sysstat unzip libstdc++ libstdc++-devel libnsl libnsl2 ksh smartmontools"
       ;;
-    26ai)
-      # Verify against the official 26ai documentation before relying on this.
+    21c|23ai|26ai)
+      # Verify against the official 21c/23ai/26ai documentation before relying on this.
       echo "binutils gcc gcc-c++ glibc glibc-devel libaio libaio-devel make sysstat unzip libstdc++ libnsl ksh smartmontools"
       ;;
     *)
       echo "binutils gcc glibc libaio make unzip"
       ;;
+  esac
+}
+
+# oracle_preinstall_pkg <oracle-version> - on Oracle Linux, Oracle ships an
+# "oracle-database-preinstall-*" RPM that creates users/groups and sets
+# sysctl/limits automatically. Echo the best-matching package name, or "".
+oracle_preinstall_pkg() {
+  case "$1" in
+    11gR2)             echo "oracle-rdbms-server-11gR2-preinstall" ;;
+    12cR1|12cR2|12c)   echo "oracle-database-server-12cR2-preinstall" ;;
+    18c)               echo "oracle-database-preinstall-18c" ;;
+    19c)               echo "oracle-database-preinstall-19c" ;;
+    21c)               echo "oracle-database-preinstall-21c" ;;
+    23ai|26ai)         echo "oracle-database-preinstall-23ai" ;;
+    *)                 echo "" ;;
   esac
 }
 
@@ -113,7 +129,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --oracle-version) ORACLE_VERSION="${2:?}"; shift ;;
       --install-prereqs) INSTALL_PREREQS=1 ;;
       --dry-run) DRY_RUN=1 ;;
@@ -126,6 +142,25 @@ main() {
   [ -n "$REPORT" ] && : >"$REPORT"
   detect_os
   record PASS "OS detected: ${OS_NAME} (RHEL major ${OS_VERSION_MAJOR}, ${OS_ARCH})"
+
+  if ! is_rhel_compatible; then
+    record WARN "OS '${OS_ID}' is not RHEL/Oracle Linux/CentOS-compatible"
+  fi
+
+  # Oracle Linux shortcut: the official preinstall RPM handles users, groups,
+  # sysctl and limits in one step. Recommend it when applicable.
+  if is_oracle_linux && [ -n "$ORACLE_VERSION" ]; then
+    local pre
+    pre=$(oracle_preinstall_pkg "$ORACLE_VERSION")
+    if [ -n "$pre" ]; then
+      if pkg_is_installed "$pre"; then
+        record PASS "Oracle Linux preinstall package present: $pre"
+      else
+        record WARN "On Oracle Linux you can install '$pre' to auto-configure users/sysctl/limits"
+      fi
+    fi
+    if is_uek; then log_info "Oracle Linux UEK kernel detected (supported by Oracle for the DB)."; fi
+  fi
 
   # Architecture: Oracle modern releases are x86_64 / aarch64 only.
   case "$OS_ARCH" in
@@ -181,7 +216,7 @@ main() {
     # shellcheck disable=SC2086
     pkg_install $pkgs || log_error "Package installation reported errors."
   elif [ -n "$pkgs" ]; then
-    log_info "To install missing packages: sudo $(detect_pkg_manager) install -y$(echo " $pkgs")"
+    log_info "To install missing packages: sudo $(detect_pkg_manager) install -y $pkgs"
   fi
 
   echo

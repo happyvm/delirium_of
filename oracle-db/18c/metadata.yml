@@ -1,5 +1,5 @@
 # Machine-readable applicability for Oracle Database 18c.
-# See ../../docs/oracle-editions-matrix.md (verify 18c/26ai names).
+# See ../../docs/oracle-editions-matrix.md (verify 18c/21c/23ai/26ai names).
 version: "18c"
 long_name: "Oracle Database 18c"
 editions:

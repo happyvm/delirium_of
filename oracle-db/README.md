@@ -12,7 +12,8 @@ oracle-db/
 │   ├── scripts/            # the real implementations (12 scripts)
 │   ├── response-files/     # db_install / netca / dbca templates
 │   └── rpm/                # spec template + lifecycle scriptlets
-└── <version>/              # 9i 10gR1 10gR2 11gR1 11gR2 12c 18c 26ai
+└── <version>/              # 9i 10gR1 10gR2 11gR1 11gR2 12cR1 12cR2
+                            # 18c 19c 21c 23ai 26ai
     ├── README.md
     ├── metadata.yml        # applicability flags per edition
     ├── enterprise/         # full tree (install/lifecycle/golden-image/rpm)

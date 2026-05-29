@@ -82,7 +82,7 @@ main() {
   while [ "$#" -gt 0 ]; do
     case "$1" in
       -h|--help) usage; exit 0 ;;
-      -v|--verbose) VERBOSE=1 ;;
+      -v|--verbose) VERBOSE=1; export VERBOSE ;;
       --dry-run) DRY_RUN=1 ;;
       --validate-only) VALIDATE_ONLY=1 ;;
       --installer) INSTALLER="${2:?}"; shift ;;
