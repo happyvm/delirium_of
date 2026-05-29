@@ -1,0 +1,44 @@
+####################################################################
+## Database Configuration Assistant (DBCA) response TEMPLATE.      ##
+##                                                                 ##
+## Generic template using {{PLACEHOLDERS}}. Start from the         ##
+## dbca.rsp shipped with your Oracle media and merge these values. ##
+## Keys differ across versions (e.g. 11g vs 19c vs 23ai/26ai).     ##
+##                                                                 ##
+## NEVER store real passwords here. Supply sysPassword /           ##
+## systemPassword at runtime from a git-ignored source.            ##
+####################################################################
+
+responseFileVersion=/oracle/assistants/rspfmt_dbca_response_schema_v19.0.0
+
+gdbName={{DB_NAME}}
+sid={{ORACLE_SID}}
+databaseConfigType=SI
+
+# Template used by DBCA (General Purpose / OLTP is the usual default).
+templateName=General_Purpose.dbc
+
+# Character sets.
+characterSet={{CHARACTERSET}}
+nationalCharacterSet=AL16UTF16
+
+# Memory: percentage of host memory dedicated to Oracle.
+automaticMemoryManagement=FALSE
+totalMemory=
+
+# Storage destinations.
+datafileDestination={{DATAFILE_DESTINATION}}
+recoveryAreaDestination={{RECOVERY_AREA_DESTINATION}}
+storageType=FS
+
+# Listener.
+listeners=LISTENER
+
+# Passwords: leave EMPTY. Provide via -sysPassword / -systemPassword flags
+# on the dbca command line sourced from a git-ignored file.
+sysPassword=
+systemPassword=
+
+# Options.
+emConfiguration=NONE
+sampleSchema=false
