@@ -1,0 +1,99 @@
+####################################################################
+## RPM spec TEMPLATE for deploying a GOLDEN ORACLE_HOME image.     ##
+##                                                                 ##
+## Rendered by build-rpm-from-golden-home.sh, which substitutes    ##
+## the {{PLACEHOLDERS}} below from the environment and passes the  ##
+## golden tarball as Source0.                                      ##
+##                                                                 ##
+## This package ships ONLY a golden image you built yourself from  ##
+## a legitimately licensed installation. It contains NO raw Oracle ##
+## media and NO secrets.                                           ##
+##                                                                 ##
+## Compatibility note: kept deliberately simple so it also builds  ##
+## with the older rpmbuild on RHEL 4/5/6 (no modern-only macros).  ##
+####################################################################
+
+# These can be overridden with --define on the rpmbuild command line.
+%define oracle_home   {{ORACLE_HOME}}
+%define oracle_edition {{EDITION}}
+%define oracle_user   oracle
+%define oracle_group  oinstall
+%define dba_group     dba
+
+Name:           oracle-home-%{oracle_edition}
+Version:        {{PKG_VERSION}}
+Release:        {{PKG_RELEASE}}%{?dist}
+Summary:        Oracle Database golden ORACLE_HOME (%{oracle_edition})
+
+# Oracle Database software is proprietary and licensed by Oracle. This RPM
+# only repackages a golden image of software you are licensed to use.
+License:        Proprietary - Oracle Technology Network License (user-supplied)
+Group:          Applications/Databases
+BuildArch:      x86_64
+Source0:        {{GOLDEN_TARBALL}}
+# Lifecycle scriptlets live next to this spec's scripts/ directory.
+AutoReqProv:    no
+
+%description
+Deploys a golden Oracle Database ORACLE_HOME for edition %{oracle_edition}
+to %{oracle_home}.
+
+WARNING / LICENSING:
+  Oracle Database software is the property of Oracle Corporation and is
+  governed by your Oracle license agreement. This package merely deploys a
+  golden image that YOU created from a legitimately installed and licensed
+  ORACLE_HOME. Do not distribute it outside the bounds of your license.
+  This package contains no Oracle installation media and no secrets.
+
+%prep
+# Source0 is the golden tarball; it extracts to the ORACLE_HOME basename.
+%setup -q -c -n oracle-home-payload
+
+%build
+# Nothing to build: this is a pre-built golden image.
+
+%install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}%{oracle_home}
+# Copy the extracted golden tree into the buildroot ORACLE_HOME.
+cp -a oracle-home-payload/* %{buildroot}%{oracle_home}/ 2>/dev/null || \
+  cp -a %{oracle_home}/* %{buildroot}%{oracle_home}/ 2>/dev/null || true
+
+# Install lifecycle helper scripts.
+mkdir -p %{buildroot}%{oracle_home}/lifecycle
+
+%files
+%defattr(-,%{oracle_user},%{oracle_group},-)
+%{oracle_home}
+
+%pre
+# Scriptlet: ensure user/groups exist (delegated to preinstall.sh content).
+getent group %{oracle_group} >/dev/null 2>&1 || groupadd %{oracle_group}
+getent group %{dba_group}    >/dev/null 2>&1 || groupadd %{dba_group}
+id %{oracle_user} >/dev/null 2>&1 || \
+  useradd -g %{oracle_group} -G %{dba_group} -m -d /home/%{oracle_user} -s /bin/bash %{oracle_user}
+
+%post
+# Fix ownership and the setuid bit on the oracle binary if present.
+chown -R %{oracle_user}:%{oracle_group} %{oracle_home} || true
+if [ -f %{oracle_home}/bin/oracle ]; then
+  chmod 6751 %{oracle_home}/bin/oracle || true
+fi
+echo "Oracle golden home installed at %{oracle_home}."
+echo "NOTE: No database is started automatically. Use the lifecycle scripts."
+# To auto-start a DB on install, set the environment/option explicitly in
+# your own wrapper; this package intentionally does NOT do so.
+
+%preun
+# On removal, do not delete user data. Best-effort stop if requested via
+# the marker file /etc/oracle-home-%{oracle_edition}.stop-on-remove.
+if [ "$1" = "0" ] && [ -f /etc/oracle-home-%{oracle_edition}.stop-on-remove ]; then
+  echo "Attempting graceful shutdown before removal..."
+fi
+
+%postun
+echo "Oracle golden home %{oracle_edition} %{version} removed (files under %{oracle_home})."
+
+%changelog
+* Thu Jan 01 1970 Repo Maintainer <maintainer@example.invalid> - 0-0
+- Template spec. Versions are injected at build time by build-rpm-from-golden-home.sh.

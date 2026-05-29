@@ -1,0 +1,13 @@
+# Golden image manifest TEMPLATE for Oracle Database 12c Standard Edition (SE).
+# create-golden-image.sh writes the real manifest; this documents the shape.
+oracle_version: "12c"
+oracle_long_name: "Oracle Database 12c"
+edition: "SE"
+oracle_home: "{{ORACLE_HOME}}"
+opatch_version: "{{OPATCH_VERSION}}"
+created: "{{CREATED_TIMESTAMP}}"
+archive: "{{ARCHIVE_NAME}}"
+sha256: "{{SHA256}}"
+os_source: "{{OS_SOURCE}}"
+os_arch: "{{OS_ARCH}}"
+applied_patches: []

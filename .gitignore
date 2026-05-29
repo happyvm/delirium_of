@@ -1,0 +1,52 @@
+# ===========================================================================
+# .gitignore
+#
+# Goals:
+#   - Never commit Oracle or Red Hat binaries / installation media.
+#   - Never commit rendered secrets or .env files.
+#   - Never commit build / golden-image output artefacts.
+# ===========================================================================
+
+# --- binaries & media (proprietary; user-supplied) -------------------------
+*.rpm
+*.tar
+*.tar.gz
+*.tgz
+*.tar.bz2
+*.tar.xz
+*.zip
+*.iso
+*.run
+*.bin
+
+# --- logs & transient output -----------------------------------------------
+*.log
+*.out
+*.err
+
+# --- secrets / environment -------------------------------------------------
+# Keep templates, ignore the materialised .env files.
+*.env
+!*.env.template
+
+# --- rendered response files (keep templates only) -------------------------
+response-files/*.rsp
+**/response-files/*.rsp
+*.rsp
+!*.rsp.template
+
+# --- Oracle media & generated output ---------------------------------------
+oracle-db/**/media/
+oracle-db/**/golden-image/output/
+
+# --- RHEL kernel build workspaces & sources --------------------------------
+rhel-kernel/**/build/
+rhel-kernel/**/sources/
+
+# --- editor / OS noise ------------------------------------------------------
+*~
+*.swp
+.DS_Store
+
+# --- keep otherwise-empty scaffold directories -----------------------------
+!**/.gitkeep

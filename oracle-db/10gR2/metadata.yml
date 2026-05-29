@@ -1,0 +1,22 @@
+# Machine-readable applicability for Oracle Database 10g Release 2.
+# See ../../docs/oracle-editions-matrix.md (verify 18c/26ai names).
+version: "10gR2"
+long_name: "Oracle Database 10g Release 2"
+editions:
+  enterprise:
+    code: EE
+    name: "Enterprise Edition"
+    applicable: yes
+  standard:
+    code: SE
+    name: "Standard Edition"
+    applicable: yes
+  standard-one:
+    code: SE1
+    name: "Standard Edition One"
+    applicable: yes
+  standard-2:
+    code: SE2
+    name: "Standard Edition 2"
+    applicable: no
+verify_official_names_manually: false

@@ -1,0 +1,68 @@
+####################################################################
+## Oracle Database software installation response file TEMPLATE.   ##
+##                                                                 ##
+## This is a GENERIC template using {{PLACEHOLDERS}}. The exact    ##
+## response-file keys differ between Oracle versions. ALWAYS start ##
+## from the db_install.rsp shipped inside your Oracle media        ##
+## ($ORACLE_HOME/install/response/db_install.rsp) and merge these  ##
+## placeholders into it.                                           ##
+##                                                                 ##
+## Render with the repo helper (render_template) after exporting   ##
+## the matching environment variables. Then pass the result via    ##
+## install-silent.sh --response <file>.                            ##
+##                                                                 ##
+## NEVER put real passwords in this file or commit a rendered copy.##
+####################################################################
+
+oracle.install.responseFileVersion=/oracle/install/rspfmt_dbinstall_response_schema_v19.0.0
+
+#-------------------------------------------------------------------
+# Installation option:
+#   INSTALL_DB_SWONLY            - software only
+#   INSTALL_DB_AND_CONFIG        - software + create a starter database
+#-------------------------------------------------------------------
+oracle.install.option=INSTALL_DB_SWONLY
+
+UNIX_GROUP_NAME={{ORACLE_INSTALL_GROUP}}
+INVENTORY_LOCATION={{INVENTORY_LOCATION}}
+ORACLE_HOME={{ORACLE_HOME}}
+ORACLE_BASE={{ORACLE_BASE}}
+
+#-------------------------------------------------------------------
+# Edition:
+#   EE  - Enterprise Edition
+#   SE  - Standard Edition (legacy)
+#   SE1 - Standard Edition One (legacy)
+#   SE2 - Standard Edition 2 (12.1.0.2+)
+#-------------------------------------------------------------------
+oracle.install.db.InstallEdition={{ORACLE_EDITION}}
+
+# OS groups (OSDBA/OSOPER/OSBACKUPDBA/OSDGDBA/OSKMDBA).
+oracle.install.db.OSDBA_GROUP={{ORACLE_DBA_GROUP}}
+oracle.install.db.OSOPER_GROUP=
+oracle.install.db.OSBACKUPDBA_GROUP={{ORACLE_DBA_GROUP}}
+oracle.install.db.OSDGDBA_GROUP={{ORACLE_DBA_GROUP}}
+oracle.install.db.OSKMDBA_GROUP={{ORACLE_DBA_GROUP}}
+oracle.install.db.OSRACDBA_GROUP={{ORACLE_DBA_GROUP}}
+
+#-------------------------------------------------------------------
+# Starter database settings (used only with INSTALL_DB_AND_CONFIG).
+# Passwords are intentionally left blank - supply them at install time
+# from a git-ignored source, NOT from this template.
+#-------------------------------------------------------------------
+oracle.install.db.config.starterdb.type=GENERAL_PURPOSE
+oracle.install.db.config.starterdb.globalDBName={{DB_NAME}}
+oracle.install.db.config.starterdb.SID={{ORACLE_SID}}
+oracle.install.db.config.starterdb.characterSet={{CHARACTERSET}}
+oracle.install.db.config.starterdb.memoryOption=true
+oracle.install.db.config.starterdb.memoryLimit=
+oracle.install.db.config.starterdb.installExampleSchemas=false
+
+# Storage.
+oracle.install.db.config.starterdb.storageType=FILE_SYSTEM_STORAGE
+oracle.install.db.config.starterdb.fileSystemStorage.dataLocation={{DATAFILE_DESTINATION}}
+oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation={{RECOVERY_AREA_DESTINATION}}
+
+# Management options.
+oracle.install.db.config.starterdb.managementOption=DEFAULT
+DECLINE_SECURITY_UPDATES=true

@@ -1,0 +1,27 @@
+####################################################################
+## Oracle Net Configuration Assistant (NETCA) response TEMPLATE.   ##
+##                                                                 ##
+## Generic template. Start from the netca.rsp inside your media    ##
+## ($ORACLE_HOME/...) and merge these values. Keys vary by version.##
+####################################################################
+
+[GENERAL]
+RESPONSEFILE_VERSION="19.0"
+CREATE_TYPE="CUSTOM"
+
+[oracle.net.ca]
+INSTALLED_COMPONENTS={"server","net8","javavm"}
+INSTALL_TYPE="typical"
+
+# Listener configuration.
+LISTENER_NUMBER=1
+LISTENER_NAMES={"LISTENER"}
+LISTENER_PROTOCOLS={"TCP;1521"}
+LISTENER_START="LISTENER"
+
+# Naming methods.
+NAMING_METHODS={"TNSNAMES","ONAMES","HOSTNAME"}
+
+# Placeholders available for downstream tooling:
+#   ORACLE_HOME = {{ORACLE_HOME}}
+#   ORACLE_SID  = {{ORACLE_SID}}
