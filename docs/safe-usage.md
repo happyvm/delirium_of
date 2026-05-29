@@ -50,12 +50,10 @@ sudo ./oracle-db/common/scripts/configure-limits.sh --dry-run
 sudo ./oracle-db/common/scripts/configure-limits.sh
 ```
 
-> On **Oracle Linux**, prefer the official preinstall RPM instead of the three
-> commands above:
-> ```bash
-> sudo dnf install -y oracle-database-preinstall-19c
-> ```
-> `check-os-prereqs.sh --oracle-version 19c` will recommend the right one.
+> On **Oracle Linux**, do not replace these explicit preparation steps with an
+> Oracle preinstallation RPM in this repository. Keeping user/group creation,
+> sysctl changes and limits changes in separate dry-run-capable scripts makes
+> the workflow reviewable and consistent across RHEL-compatible targets.
 
 ## Oracle install / DBCA (validate-only, then dry-run, then real)
 

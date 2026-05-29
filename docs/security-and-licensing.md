@@ -33,12 +33,21 @@ the media/output/build/sources directories.
 
 | Asset | Governed by |
 |-------|-------------|
-| This repo's scripts/docs | MIT (`LICENSE`) |
+| This repo's scripts/templates/docs | GNU General Public License v3.0 (`LICENSE`) |
 | Oracle Database software, golden images, RPMs built from them | Your Oracle license agreement |
 | RHEL, stock kernel configs, entitled packages | Red Hat agreements |
 
 Do not use these scripts to **circumvent** Oracle or Red Hat licensing. They
 assume you already hold valid licenses and the corresponding media.
+
+### Repository license change to GPL-3.0
+
+The repository code, templates and documentation are licensed under
+**GNU GPL v3.0** so improvements distributed outside the repository remain
+shareable under the same copyleft terms. This does **not** change the
+proprietary status of Oracle Database, Red Hat Enterprise Linux, installation
+media, generated Oracle homes, generated RPMs, or any other third-party
+content you supply locally.
 
 ## .gitignore strategy
 

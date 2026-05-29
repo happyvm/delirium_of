@@ -67,7 +67,7 @@ Editions: EE = Enterprise, SE = Standard, SE1 = Standard One, SE2 = Standard 2.
 | 10gR1   | scaffold | scaffold | scaffold | ⚪ | 🟠 | |
 | 10gR2   | scaffold | scaffold | scaffold | ⚪ | 🟠 | |
 | 11gR1   | scaffold | scaffold | scaffold | ⚪ | 🟠 | |
-| 11gR2   | scaffold | scaffold | scaffold | ⚪ | 🟠 | Has Oracle Linux preinstall RPM. |
+| 11gR2   | scaffold | scaffold | scaffold | ⚪ | 🟠 | Legacy release; explicit host-prep scripts only. |
 | 12cR1   | scaffold | scaffold² | scaffold² | scaffold | 🟠 | SE/SE1 deprecated (12.1.0.1 only). |
 | 12cR2   | scaffold | ⚪ | ⚪ | scaffold | 🟠 | |
 | 18c     | scaffold | ⚪ | ⚪ | scaffold | 🟠 | Verify edition names. |

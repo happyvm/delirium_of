@@ -96,20 +96,6 @@ os_packages_for() {
   esac
 }
 
-# oracle_preinstall_pkg <oracle-version> - on Oracle Linux, Oracle ships an
-# "oracle-database-preinstall-*" RPM that creates users/groups and sets
-# sysctl/limits automatically. Echo the best-matching package name, or "".
-oracle_preinstall_pkg() {
-  case "$1" in
-    11gR2)             echo "oracle-rdbms-server-11gR2-preinstall" ;;
-    12cR1|12cR2|12c)   echo "oracle-database-server-12cR2-preinstall" ;;
-    18c)               echo "oracle-database-preinstall-18c" ;;
-    19c)               echo "oracle-database-preinstall-19c" ;;
-    21c)               echo "oracle-database-preinstall-21c" ;;
-    23ai|26ai)         echo "oracle-database-preinstall-23ai" ;;
-    *)                 echo "" ;;
-  esac
-}
 
 check_space_mb() {
   local path="$1" need="$2" label="$3" avail
@@ -147,19 +133,11 @@ main() {
     record WARN "OS '${OS_ID}' is not RHEL/Oracle Linux/CentOS-compatible"
   fi
 
-  # Oracle Linux shortcut: the official preinstall RPM handles users, groups,
-  # sysctl and limits in one step. Recommend it when applicable.
-  if is_oracle_linux && [ -n "$ORACLE_VERSION" ]; then
-    local pre
-    pre=$(oracle_preinstall_pkg "$ORACLE_VERSION")
-    if [ -n "$pre" ]; then
-      if pkg_is_installed "$pre"; then
-        record PASS "Oracle Linux preinstall package present: $pre"
-      else
-        record WARN "On Oracle Linux you can install '$pre' to auto-configure users/sysctl/limits"
-      fi
-    fi
-    if is_uek; then log_info "Oracle Linux UEK kernel detected (supported by Oracle for the DB)."; fi
+  # Oracle Linux can use either RHCK or UEK. This repository deliberately does
+  # not rely on Oracle Linux preinstallation RPMs; keep user/group, sysctl and
+  # limits preparation explicit via the documented scripts.
+  if is_oracle_linux && is_uek; then
+    log_info "Oracle Linux UEK kernel detected (supported by Oracle for the DB)."
   fi
 
   # Architecture: Oracle modern releases are x86_64 / aarch64 only.
