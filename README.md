@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="hermy_of logo" width="200"/>
+</p>
+
 # RHEL Kernel & Oracle Database Automation
 
 A clean, maintainable, enterprise-oriented Git repository for two related
